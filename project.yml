@@ -1,0 +1,155 @@
+name: PantrixRortySwiftUI
+options:
+  bundleIdPrefix: com.pantrix.demo.rorty
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+# Three build variants (debug / qaTest / release), mirroring the UIKit demo and the Android sample.
+# QaTest is release-type (optimized, dwarf-with-dsym) so it emits a dSYM for the crash-symbolication
+# path. The variant is read at runtime via SWIFT_ACTIVE_COMPILATION_CONDITIONS (QATEST).
+configs:
+  Debug: debug
+  QaTest: release
+  Release: release
+# Everything comes in over SPM. The SDK is the PUBLISHED package (exact beta pin — a pre-release
+# needs exactVersion, `from:` would skip betas). NO Alamofire here: this demo exercises the SDK's
+# other HTTP path, `Pantrix.instrumentedSession()`.
+packages:
+  Pantrix:
+    url: https://github.com/developersancho/pantrix-sdk-ios-spm
+    exactVersion: "1.0.0-beta.13"
+  Kingfisher:
+    url: https://github.com/onevcat/Kingfisher
+    from: "7.0.0"
+  Resolver:
+    url: https://github.com/hmlongco/Resolver
+    from: "1.5.0"
+targets:
+  PantrixRortySwiftUI:
+    type: application
+    platform: iOS
+    sources:
+      - path: Sources
+    dependencies:
+      # PantrixSwiftUI is not optional here the way it is in a UIKit app: automatic screen tracking
+      # cannot see SwiftUI screens, so this module IS the screen tracking for this demo.
+      - package: Pantrix
+        product: Pantrix
+      - package: Pantrix
+        product: PantrixSwiftUI
+      - package: Pantrix
+        product: PantrixCrash
+      - package: Pantrix
+        product: PantrixInspector
+      - package: Pantrix
+        product: PantrixFeedback
+      # No-op twins, linked alongside the real tools. The imports use `#if PANTRIX_INSPECTOR` /
+      # `#if PANTRIX_FEEDBACK` (defined only on Debug + QaTest, below), so a Release build calls
+      # THESE inert stubs. Caveat: SPM has no per-config dependency, so both frameworks ship in every
+      # config; a real consumer that wants the tool's code OUT of Release links it per-configuration
+      # in their own Xcode project.
+      - package: Pantrix
+        product: PantrixInspectorNoop
+      - package: Pantrix
+        product: PantrixFeedbackNoop
+      - package: Kingfisher
+        product: Kingfisher
+      - package: Resolver
+        product: Resolver
+    # Explicit Info.plist (not GENERATE_INFOPLIST_FILE) so it can carry the ATS local-networking
+    # exception for the http://localhost:8099 backend and the Local Network purpose string for
+    # on-device LAN testing. No UIApplicationSceneManifest: SwiftUI's App lifecycle supplies its own.
+    info:
+      path: PantrixRortySwiftUI-Info.plist
+      properties:
+        CFBundleDisplayName: $(BUNDLE_DISPLAY_NAME)
+        UILaunchScreen: {}
+        UIApplicationSupportsIndirectInputEvents: true
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        NSAppTransportSecurity:
+          NSAllowsLocalNetworking: true
+        NSLocalNetworkUsageDescription: "During development the demo sends telemetry to a Pantrix TEST backend running on your local network."
+    settings:
+      base:
+        # Team ID is injected from the PANTRIX_DEV_TEAM env var at `xcodegen generate` time (see
+        # Scripts/gen-demo.sh in the SDK repo), so no personal team id lands in this committed file.
+        DEVELOPMENT_TEAM: ${PANTRIX_DEV_TEAM}
+        CODE_SIGN_STYLE: Automatic
+        PRODUCT_BUNDLE_IDENTIFIER: com.pantrix.demo.rorty.swiftui
+        BUNDLE_DISPLAY_NAME: "PX Rorty SwiftUI"
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        # Bridging header for the Crash Lab's ObjC/ObjC++ triggers (C++ throw, Mach faults) that
+        # cannot be written in Swift. Added in Faz 5; declared now so the setting never moves.
+        SWIFT_OBJC_BRIDGING_HEADER: Sources/CrashLab/DemoBridging.h
+        # Off so the dSYM-upload build phase (below) can read the gitignored .pantrixrc and reach the
+        # network.
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+      configs:
+        Debug:
+          # PANTRIX_INSPECTOR / PANTRIX_FEEDBACK select the REAL debug tools (vs the no-op twins) —
+          # defined on Debug + QaTest only, so Release falls through to the inert stubs.
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) PANTRIX_INSPECTOR PANTRIX_FEEDBACK"
+          PRODUCT_BUNDLE_IDENTIFIER: com.pantrix.demo.rorty.swiftui.debug
+          BUNDLE_DISPLAY_NAME: "PX Rorty SU Debug"
+        QaTest:
+          SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) QATEST PANTRIX_INSPECTOR PANTRIX_FEEDBACK"
+          PRODUCT_BUNDLE_IDENTIFIER: com.pantrix.demo.rorty.swiftui.qatest
+          BUNDLE_DISPLAY_NAME: "PX Rorty SU QA"
+          # A single-binary build (no Xcode-16 debug dylib) so dwarf-with-dsym emits one .app.dSYM
+          # whose UUID matches the crashing binary — the dSYM the crash frames actually need.
+          ENABLE_DEBUG_DYLIB: NO
+          # Opts the dSYM-upload build phase in for this config; the script only uploads when this is
+          # set, so Debug (which emits no dSYM) never spams.
+          PANTRIX_UPLOAD_DSYM: "1"
+        Release:
+          ENABLE_DEBUG_DYLIB: NO
+          PANTRIX_UPLOAD_DSYM: "1"
+    # dSYM upload as a BUILD PHASE (like Firebase Crashlytics / Sentry) — runs on EVERY build of this
+    # target, including a plain Run of a dSYM-emitting config, and on archive too. An Archive
+    # post-action would fire only on ⌘⇧A, and the Simulator flow never archives, so builds people
+    # actually run would upload nothing.
+    postBuildScripts:
+      - name: Upload dSYMs to Pantrix
+        basedOnDependencyAnalysis: false   # dSYMs change every build → always run
+        inputFiles: [ "${DWARF_DSYM_FOLDER_PATH}" ]
+        script: |
+          # QaTest and Release are DIFFERENT Pantrix projects, so they need DIFFERENT CI keys. The
+          # dSYM's project must be the crash's project — mismatch them and the crash symbolicates to
+          # status "missing" and is filtered out of the rollup entirely.
+          case "$CONFIGURATION" in
+            QaTest)  export PANTRIX_CONFIG="$SRCROOT/.pantrixrc.qatest" ;;
+            Release) export PANTRIX_CONFIG="$SRCROOT/.pantrixrc.release" ;;
+          esac
+          "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/pantrix-sdk-ios-spm/Scripts/pantrix-upload-dsym.sh" \
+            > /tmp/pantrix-dsym-swiftui-buildphase.log 2>&1 || true
+# One scheme per variant — the iOS analogue of Android's Build Variant dropdown. Shared so
+# `xcodebuild -scheme PantrixRortySwiftUI-Debug …` works after every regenerate.
+schemes:
+  PantrixRortySwiftUI-Debug:
+    build:
+      targets:
+        PantrixRortySwiftUI: all
+    run:
+      config: Debug
+    archive:
+      config: Debug
+  PantrixRortySwiftUI-QaTest:
+    build:
+      targets:
+        PantrixRortySwiftUI: all
+    run:
+      config: QaTest
+    archive:
+      config: QaTest
+  PantrixRortySwiftUI-Release:
+    build:
+      targets:
+        PantrixRortySwiftUI: all
+    run:
+      config: Release
+    archive:
+      config: Release

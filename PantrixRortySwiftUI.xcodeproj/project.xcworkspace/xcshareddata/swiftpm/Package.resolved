@@ -1,0 +1,42 @@
+{
+  "originHash" : "6cc205e8246163b1bebebe5902962a8cd5cfd142f5f3b6b57023bb0df109d670",
+  "pins" : [
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire",
+      "state" : {
+        "revision" : "7595cbcf59809f9977c5f6378500de2ad73b7ddb",
+        "version" : "5.12.0"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "revision" : "2ef543ee21d63734e1c004ad6c870255e8716c50",
+        "version" : "7.12.0"
+      }
+    },
+    {
+      "identity" : "pantrix-sdk-ios-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/developersancho/pantrix-sdk-ios-spm",
+      "state" : {
+        "revision" : "100d870089ae0c9e7ba1e1620e96770a4eb47cf3",
+        "version" : "1.0.0-beta.13"
+      }
+    },
+    {
+      "identity" : "resolver",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/hmlongco/Resolver",
+      "state" : {
+        "revision" : "47602af1ac8d7952299fbd0bda3cfbd12cf3a8ca",
+        "version" : "1.5.1"
+      }
+    }
+  ],
+  "version" : 3
+}
