@@ -47,7 +47,7 @@ struct RootTabView: View {
             .tabItem { Label("Profile", systemImage: "person.crop.circle") }
 
             stack(path: $labPath) {
-                Faz1ProbeView()
+                LabView(path: $labPath)
             }
             .tabItem { Label("Lab", systemImage: "wrench.and.screwdriver.fill") }
         }
@@ -87,27 +87,7 @@ struct RootTabView: View {
         case let .episodesByIds(ids, title):
             EpisodesByIdsView(ids: ids, title: title, path: path)
         case .crashLab:
-            PlaceholderScreen(name: "Crash Lab", systemImage: "ladybug.fill")
+            CrashLabView()
         }
-    }
-}
-
-/// Faz 0 scaffolding — replaced screen by screen from Faz 2 on.
-struct PlaceholderScreen: View {
-    let name: String
-    let systemImage: String
-
-    var body: some View {
-        VStack(spacing: 12) {
-            Image(systemName: systemImage)
-                .font(.system(size: 48))
-                .foregroundStyle(.tint)
-            Text(name).font(.title2.bold())
-            Text("Faz 0 — bu ekran henüz kurulmadı.")
-                .font(.footnote)
-                .foregroundStyle(.secondary)
-        }
-        .navigationTitle(name)
-        .trackScreen(name)
     }
 }

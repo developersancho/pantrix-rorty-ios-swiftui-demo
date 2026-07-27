@@ -6,11 +6,13 @@
 //
 //  The Mach-fault and C++-terminate triggers cannot be written in Swift — Swift has no `throw` that
 //  reaches `std::terminate`, and the compiler folds or deletes the constructs that produce SIGSEGV /
-//  SIGBUS / SIGILL. They arrive in Faz 5 as an ObjC (.m) and an ObjC++ (.mm) pair, imported here.
+//  SIGBUS / SIGILL.
 //
-//  The `SWIFT_OBJC_BRIDGING_HEADER` build setting points at this file from Faz 0 so the setting
-//  never has to move later.
+//  The two file extensions are load-bearing and must not be "tidied":
+//    · DemoCrashCxx.**mm** — ObjC++, so it can `throw` a C++ exception.
+//    · DemoCrashMach.**m** — plain ObjC. As ObjC++ the string-literal cast in `writeToReadOnlyPage`
+//      becomes a `-Wwrite-strings` error.
 //
 
-// #import "DemoCrashCxx.h"   // Faz 5
-// #import "DemoCrashMach.h"  // Faz 5
+#import "DemoCrashCxx.h"
+#import "DemoCrashMach.h"

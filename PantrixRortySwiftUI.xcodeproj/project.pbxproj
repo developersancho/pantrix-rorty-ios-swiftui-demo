@@ -12,11 +12,11 @@
 		11DEB85D0D22359934BE9ABD /* UseCases.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70448781F344D5EA670D4193 /* UseCases.swift */; };
 		142C10340102BA1D7B88D738 /* CharactersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AED2EC08993DA4F099E5A2C5 /* CharactersViewModel.swift */; };
 		1E858ABEB9D2E905E2EA132A /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = B05197D6A651DE3EE4DAFEF1 /* Kingfisher */; };
-		1FB3A98C40FE811B5C31CFB8 /* Faz1Probe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66C5561B22FD13475A72A470 /* Faz1Probe.swift */; };
 		21AB5CC0A695EE515DFAE2C8 /* Location.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EBF592FDF1B7E7EE2D2C16C /* Location.swift */; };
 		2A06A3A766662C1AE2B4B102 /* Episode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833B3CF8FEEF2539AED21AA6 /* Episode.swift */; };
 		2A0FF7957AA0760DAC329B29 /* Locations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843F47EC6925706390D1E9DF /* Locations.swift */; };
 		2B973F9F8373EADBB9B42CA2 /* PantrixCrash in Frameworks */ = {isa = PBXBuildFile; productRef = F34C46994669E661166A679F /* PantrixCrash */; };
+		4948CBA847794B409D3F97E4 /* Lab.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0AE3F90F708D2AAF2408C25B /* Lab.swift */; };
 		51D79C98B307D53F4DCDA1F5 /* PagedListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3BB8F75346FCE9A328FD7B /* PagedListViewModel.swift */; };
 		525D03E8DD6CA0E8EF4B7503 /* AppContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5E78A54037B26ACFA3C01D1 /* AppContainer.swift */; };
 		55914C004D699EB85C92DF81 /* PantrixSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 93D6D680050D90FED8BC9DAD /* PantrixSwiftUI */; };
@@ -35,9 +35,11 @@
 		81DE9F3CD694F0471141146E /* Page.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11D6B77E50E738186EB852C7 /* Page.swift */; };
 		86E5C8DBE7D92D1E1F7FFD02 /* CharactersView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9B924DB344E3219639AF413 /* CharactersView.swift */; };
 		A01A6702F5584AC601A7E14F /* Dtos.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB6CAE6A78BA4D8480EA18B /* Dtos.swift */; };
+		A6767C3D131822444B7F24E2 /* CrashLabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1D31743E1BF7BC2E371413 /* CrashLabView.swift */; };
 		B00B9B81E1FA1D87D60C6024 /* RootTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7E74BA7A56AAB3F089DA646C /* RootTabView.swift */; };
 		B31472468DD4FAB8D0DB3943 /* PantrixRortySwiftUIApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 579AA49576090FDAD038C1EB /* PantrixRortySwiftUIApp.swift */; };
 		BB0823ABF7E1506EEC199E82 /* CharactersByIds.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C1C14066D51CDDE42909F7A /* CharactersByIds.swift */; };
+		BEE65D2A1BC4EA6A5F013CB1 /* DemoCrashCxx.mm in Sources */ = {isa = PBXBuildFile; fileRef = 4E728419B7944C892B0F8E52 /* DemoCrashCxx.mm */; };
 		C93954E4B5D0C707F8973CDE /* BuildVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = B723E66DC3DEC2A7E65C8E30 /* BuildVariant.swift */; };
 		C9566F4E8919C4EEAA2EA965 /* Episodes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24FEA79D358C361B959DC6F2 /* Episodes.swift */; };
 		CA5E2EC295BCFF19506F17AD /* Character.swift in Sources */ = {isa = PBXBuildFile; fileRef = C764589BD212CC33EE07CF95 /* Character.swift */; };
@@ -47,18 +49,21 @@
 		EB65E30A3929731A88C0347A /* RickMortyClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED1742408AF59D075939D664 /* RickMortyClient.swift */; };
 		ED95B3E860661D63524F2DC9 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8981BEDE710FB0C68D8FF9EE /* Profile.swift */; };
 		F17E2C17EFF8BE0D1DB635F4 /* Repositories.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2EB0CF9213A5BF1D47BC78E2 /* Repositories.swift */; };
+		F2E00554E8751382B1F31A9B /* DemoCrashMach.m in Sources */ = {isa = PBXBuildFile; fileRef = 6AAB22A249EC72D862FF8DE8 /* DemoCrashMach.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0657193C0B49EA4E1A3EED8D /* Components.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Components.swift; sourceTree = "<group>"; };
+		0AE3F90F708D2AAF2408C25B /* Lab.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Lab.swift; sourceTree = "<group>"; };
 		11D6B77E50E738186EB852C7 /* Page.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Page.swift; sourceTree = "<group>"; };
 		1BB6CAE6A78BA4D8480EA18B /* Dtos.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Dtos.swift; sourceTree = "<group>"; };
 		24FEA79D358C361B959DC6F2 /* Episodes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Episodes.swift; sourceTree = "<group>"; };
 		2EB0CF9213A5BF1D47BC78E2 /* Repositories.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repositories.swift; sourceTree = "<group>"; };
 		48F01C8523CD8FB194693F0E /* Route.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Route.swift; sourceTree = "<group>"; };
 		4C1C14066D51CDDE42909F7A /* CharactersByIds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersByIds.swift; sourceTree = "<group>"; };
+		4E728419B7944C892B0F8E52 /* DemoCrashCxx.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = DemoCrashCxx.mm; sourceTree = "<group>"; };
 		579AA49576090FDAD038C1EB /* PantrixRortySwiftUIApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PantrixRortySwiftUIApp.swift; sourceTree = "<group>"; };
-		66C5561B22FD13475A72A470 /* Faz1Probe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Faz1Probe.swift; sourceTree = "<group>"; };
+		6AAB22A249EC72D862FF8DE8 /* DemoCrashMach.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DemoCrashMach.m; sourceTree = "<group>"; };
 		6E33665540EA8B1E0E8C911C /* CharacterDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailView.swift; sourceTree = "<group>"; };
 		6E3440EE16267984DAE20B6D /* PantrixRortySwiftUI.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = PantrixRortySwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		70448781F344D5EA670D4193 /* UseCases.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UseCases.swift; sourceTree = "<group>"; };
@@ -69,7 +74,9 @@
 		843F47EC6925706390D1E9DF /* Locations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Locations.swift; sourceTree = "<group>"; };
 		87588CA8394A4C26F8AC70D2 /* RortyTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RortyTheme.swift; sourceTree = "<group>"; };
 		8981BEDE710FB0C68D8FF9EE /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
+		8FC1134291C7B44323B6E419 /* DemoCrashMach.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoCrashMach.h; sourceTree = "<group>"; };
 		934261875BD79C0C1978A7E9 /* Mvi.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Mvi.swift; sourceTree = "<group>"; };
+		AB79D9302999B4C83FCFC159 /* DemoCrashCxx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DemoCrashCxx.h; sourceTree = "<group>"; };
 		AED2EC08993DA4F099E5A2C5 /* CharactersViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersViewModel.swift; sourceTree = "<group>"; };
 		B2E3675A473EA0EBCCA8DD81 /* MviViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MviViewModel.swift; sourceTree = "<group>"; };
 		B723E66DC3DEC2A7E65C8E30 /* BuildVariant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildVariant.swift; sourceTree = "<group>"; };
@@ -81,6 +88,7 @@
 		E85E5C96395B02A3939E4357 /* EpisodesByIds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodesByIds.swift; sourceTree = "<group>"; };
 		EC6CE98315EFF59764B10E03 /* CharactersContract.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharactersContract.swift; sourceTree = "<group>"; };
 		ED1742408AF59D075939D664 /* RickMortyClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RickMortyClient.swift; sourceTree = "<group>"; };
+		FA1D31743E1BF7BC2E371413 /* CrashLabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrashLabView.swift; sourceTree = "<group>"; };
 		FA3BB8F75346FCE9A328FD7B /* PagedListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PagedListViewModel.swift; sourceTree = "<group>"; };
 		FD20695E43B50A3E89DF2097 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -231,6 +239,10 @@
 			isa = PBXGroup;
 			children = (
 				DA74B7EFD81E93B035DADB75 /* DemoBridging.h */,
+				AB79D9302999B4C83FCFC159 /* DemoCrashCxx.h */,
+				4E728419B7944C892B0F8E52 /* DemoCrashCxx.mm */,
+				8FC1134291C7B44323B6E419 /* DemoCrashMach.h */,
+				6AAB22A249EC72D862FF8DE8 /* DemoCrashMach.m */,
 			);
 			path = CrashLab;
 			sourceTree = "<group>";
@@ -255,7 +267,8 @@
 		950EEE2F53CA2FAC8540250D /* Lab */ = {
 			isa = PBXGroup;
 			children = (
-				66C5561B22FD13475A72A470 /* Faz1Probe.swift */,
+				FA1D31743E1BF7BC2E371413 /* CrashLabView.swift */,
+				0AE3F90F708D2AAF2408C25B /* Lab.swift */,
 			);
 			path = Lab;
 			sourceTree = "<group>";
@@ -436,11 +449,14 @@
 				86E5C8DBE7D92D1E1F7FFD02 /* CharactersView.swift in Sources */,
 				142C10340102BA1D7B88D738 /* CharactersViewModel.swift in Sources */,
 				6C6B8AAB5BBADD3DFE67C1CE /* Components.swift in Sources */,
+				A6767C3D131822444B7F24E2 /* CrashLabView.swift in Sources */,
+				BEE65D2A1BC4EA6A5F013CB1 /* DemoCrashCxx.mm in Sources */,
+				F2E00554E8751382B1F31A9B /* DemoCrashMach.m in Sources */,
 				A01A6702F5584AC601A7E14F /* Dtos.swift in Sources */,
 				2A06A3A766662C1AE2B4B102 /* Episode.swift in Sources */,
 				C9566F4E8919C4EEAA2EA965 /* Episodes.swift in Sources */,
 				7CD1DCEF16408E61F9EB9CF9 /* EpisodesByIds.swift in Sources */,
-				1FB3A98C40FE811B5C31CFB8 /* Faz1Probe.swift in Sources */,
+				4948CBA847794B409D3F97E4 /* Lab.swift in Sources */,
 				21AB5CC0A695EE515DFAE2C8 /* Location.swift in Sources */,
 				2A0FF7957AA0760DAC329B29 /* Locations.swift in Sources */,
 				5E1788A3C7F29D92A24C3D36 /* Mappers.swift in Sources */,

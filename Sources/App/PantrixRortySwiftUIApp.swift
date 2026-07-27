@@ -65,7 +65,20 @@ struct PantrixRortySwiftUIApp: App {
             // Off would delete events right after upload — and the Inspector reads that same store,
             // which is what makes events look like they are "disappearing" from it.
             config.keepSentEvents = !variant.isRelease
-            // On: the dashboard's SDK Config screen can override the values above at the next launch.
+            // On — and that makes everything above a REQUEST, not a decision.
+            //
+            // Remote config is a **full override**: whatever `/api/v1/sdk/config` returns replaces
+            // these values on the next launch. A project with no SDK Config row gets the backend's
+            // baseline, which has `trackHttpBody = false` and `keepSentEvents = false` — so a brand
+            // new project silently turns body capture off (the Lab's response-body row records
+            // nothing) and deletes events after upload (the Inspector looks empty).
+            //
+            // Measured on this demo's own project: with this flag off the manual `trackHttp` carried
+            // 2719 bytes; with it on, the field never arrived at all.
+            //
+            // Set it to `false` to make the local config authoritative. It is left on because it is a
+            // real SDK feature, and switching it off to make the demo look better would hide how the
+            // SDK actually behaves.
             config.enableRemoteConfig = true
         })
 
