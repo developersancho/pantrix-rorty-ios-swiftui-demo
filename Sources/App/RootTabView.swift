@@ -42,7 +42,7 @@ struct RootTabView: View {
             .tabItem { Label("Profile", systemImage: "person.crop.circle") }
 
             stack(path: $labPath) {
-                PlaceholderScreen(name: "Lab", systemImage: "wrench.and.screwdriver.fill")
+                Faz1ProbeView()
             }
             .tabItem { Label("Lab", systemImage: "wrench.and.screwdriver.fill") }
         }
