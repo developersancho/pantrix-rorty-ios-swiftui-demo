@@ -115,28 +115,18 @@ struct EpisodesView: View {
 
                 if vm.state.isLoadingMore { LoadingMoreFooter() }
             }
-            // The documented placement — and, measured on iOS 26.5, currently a silent no-op.
+            // Both halves of one gesture: `trackDrag` reports the leading edge (a drag began, once per
+            // gesture — not per frame), `trackScroll` the trailing one (where it came to rest).
+            // Together they are what Android's `TrackInteractions` + `TrackScroll` report.
             //
-            // `trackScroll` reads the offset through a `GeometryReader` background and ships it up
-            // with `preference` + `onPreferenceChange`. The read is fine: probing this exact spot by
-            // hand, the geometry updated 162 times across one swipe, 0 → 822pt. The delivery is not:
-            // `onPreferenceChange` fired **once**, with 0, and never again. `onGeometryChange` wired
-            // into the same position fired 151 times and followed the scroll. So the preference path
-            // no longer propagates during ScrollView scrolling, and the modifier reports nothing at
-            // all — no warning, no event, nothing to notice.
-            //
-            // Left in place deliberately: it is the correct call, it costs one `GeometryReader`, and
-            // when the SDK moves to `onGeometryChange` this screen starts working without an edit.
+            // Both were broken until `1.0.0-beta.14`, and this screen is what found them: `trackScroll`
+            // emitted nothing at all (its offset went through `preference`/`onPreferenceChange`, which
+            // stops delivering during a scroll on iOS 18+), and `trackDrag` took the scrolling away
+            // entirely (a SwiftUI `DragGesture` says nothing to `UIScrollView`'s pan, whatever
+            // `simultaneousGesture` implies). Neither failed loudly. Pin below beta.14 and this screen
+            // silently stops reporting scrolls and stops scrolling on a drag handle.
+            .trackDrag("episodes_feed")
             .trackScroll("episodes_feed")
-
-            // `.trackDrag("episodes_feed")` belongs here — the leading edge of the gesture whose
-            // trailing edge `trackScroll` reports — and is deliberately absent.
-            //
-            // Its doc says `simultaneousGesture` keeps it from stealing an enclosing ScrollView's
-            // scrolling. Measured here, it does steal it: with the modifier on, three full swipes
-            // moved the list by nothing and emitted three `ui_drag`s; with it off, one identical
-            // swipe scrolled from S01E01 to S03E09. A tracking call that breaks scrolling is not
-            // something to ship to make a point.
         }
         // Without this the content has no named coordinate space to measure against and `trackScroll`
         // silently reports nothing — no warning, no event.

@@ -17,7 +17,7 @@ configs:
 packages:
   Pantrix:
     url: https://github.com/developersancho/pantrix-sdk-ios-spm
-    exactVersion: "1.0.0-beta.13"
+    exactVersion: "1.0.0-beta.14"
   Kingfisher:
     url: https://github.com/onevcat/Kingfisher
     from: "7.0.0"
