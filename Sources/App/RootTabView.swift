@@ -27,12 +27,12 @@ struct RootTabView: View {
             .tabItem { Label("Characters", systemImage: "person.3.fill") }
 
             stack(path: $locationsPath) {
-                PlaceholderScreen(name: "Locations", systemImage: "map.fill")
+                LocationsView(path: $locationsPath)
             }
             .tabItem { Label("Locations", systemImage: "map.fill") }
 
             stack(path: $episodesPath) {
-                PlaceholderScreen(name: "Episodes", systemImage: "tv.fill")
+                EpisodesView(path: $episodesPath)
             }
             .tabItem { Label("Episodes", systemImage: "tv.fill") }
 
@@ -73,11 +73,11 @@ struct RootTabView: View {
         case let .characterDetail(character):
             CharacterDetailView(character: character, path: path)
         case let .locationDetail(location):
-            PlaceholderScreen(name: location.name, systemImage: "mappin.and.ellipse")
+            LocationDetailView(location: location, path: path)
         case let .episodeDetail(episode):
-            PlaceholderScreen(name: episode.name, systemImage: "tv")
-        case let .charactersByIds(_, title):
-            PlaceholderScreen(name: title, systemImage: "person.3")
+            EpisodeDetailView(episode: episode, path: path)
+        case let .charactersByIds(ids, title):
+            CharactersByIdsView(ids: ids, title: title, path: path)
         case let .episodesByIds(ids, title):
             EpisodesByIdsView(ids: ids, title: title, path: path)
         case .crashLab:
