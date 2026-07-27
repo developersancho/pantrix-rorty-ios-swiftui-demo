@@ -14,11 +14,10 @@
 @interface DemoCrashMach : NSObject
 /// Unbounded recursion until the stack is exhausted.
 ///
-/// Reports as **SIGBUS**, not SIGSEGV — measured on this demo's own crash records (arm64 iOS 26.5
-/// simulator): the guard page below the stack is mapped no-access, so running into it is
-/// KERN_PROTECTION_FAILURE, which translates to SIGBUS. macOS answers SIGSEGV for the same code,
-/// and the sibling demos still carry that stale claim. The record also arrives with only ~6 frames
-/// — one address repeated — because there is no stack left to unwind.
+/// Reports as **SIGBUS**, not SIGSEGV: hitting the guard page raises `KERN_PROTECTION_FAILURE` (the page
+/// exists, it just isn't writable), not `KERN_INVALID_ADDRESS`. A standalone repro on macOS arm64
+/// measures SIGSEGV — iOS answers differently, so only a device settles it. The record also arrives with
+/// only ~6 frames, one address repeated, because there is no stack left to unwind.
 + (void)overflowStack;
 /// Stores into a read-only page → KERN_PROTECTION_FAILURE → **SIGBUS**.
 + (void)writeToReadOnlyPage;
