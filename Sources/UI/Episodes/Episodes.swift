@@ -61,7 +61,9 @@ final class EpisodesViewModel: PagedListViewModel<
                 self?.setEffect { .showError(error.localizedDescription) }
             }
         case let .selected(episode):
-            Pantrix.trackInteraction(.click, attributes: ["target": "episode_row", "id": episode.id])
+            // No `trackInteraction(.click, …)` here: the row's `trackTaps` already emitted the
+            // `ui_click`, and repeating it would double-count every tap. The business event is this
+            // layer's to send — the interaction is the view's.
             Pantrix.track("episode_opened", attributes: ["id": episode.id, "name": episode.name])
             setEffect { .navigate(.episodeDetail(episode)) }
         }
@@ -81,28 +83,64 @@ struct EpisodesView: View {
     @State private var errorMessage: String?
 
     var body: some View {
-        List {
-            if let message = vm.state.message {
-                StateMessage(text: message)
-            }
+        // A `ScrollView` + `LazyVStack`, not a `List` — and that is what makes `trackScroll` possible
+        // here. The modifier measures ONE content view's offset inside the container's coordinate
+        // space, so it needs a single view that spans the whole scrollable extent. A `List` never
+        // offers one: its rows are separate, lazily built, and recycled as they leave the screen, so
+        // there is nothing to attach to. Characters and Locations stay `List`s so both shapes are in
+        // the app side by side.
+        ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                if let message = vm.state.message {
+                    StateMessage(text: message)
+                }
 
-            ForEach(vm.state.items) { episode in
-                Button {
-                    vm.onIntent(.selected(episode))
-                } label: {
+                ForEach(vm.state.items) { episode in
                     EpisodeRow(episode: episode)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        // Without this the row is only tappable on its text, not across the gap to
+                        // the trailing edge — a `List` row gives that for free, a `VStack` child does not.
+                        .contentShape(Rectangle())
+                        .trackTaps("episode_row", metadata: ["id": episode.id]) {
+                            vm.onIntent(.selected(episode))
+                        }
+                        .padding(.horizontal)
+                        .onAppear {
+                            if episode.id == vm.state.items.suffix(5).first?.id {
+                                vm.onIntent(.reachedEnd)
+                            }
+                        }
+                    Divider().padding(.leading)
                 }
-                .buttonStyle(.plain)
-                .onAppear {
-                    if episode.id == vm.state.items.suffix(5).first?.id {
-                        vm.onIntent(.reachedEnd)
-                    }
-                }
-            }
 
-            if vm.state.isLoadingMore { LoadingMoreFooter() }
+                if vm.state.isLoadingMore { LoadingMoreFooter() }
+            }
+            // The documented placement — and, measured on iOS 26.5, currently a silent no-op.
+            //
+            // `trackScroll` reads the offset through a `GeometryReader` background and ships it up
+            // with `preference` + `onPreferenceChange`. The read is fine: probing this exact spot by
+            // hand, the geometry updated 162 times across one swipe, 0 → 822pt. The delivery is not:
+            // `onPreferenceChange` fired **once**, with 0, and never again. `onGeometryChange` wired
+            // into the same position fired 151 times and followed the scroll. So the preference path
+            // no longer propagates during ScrollView scrolling, and the modifier reports nothing at
+            // all — no warning, no event, nothing to notice.
+            //
+            // Left in place deliberately: it is the correct call, it costs one `GeometryReader`, and
+            // when the SDK moves to `onGeometryChange` this screen starts working without an edit.
+            .trackScroll("episodes_feed")
+
+            // `.trackDrag("episodes_feed")` belongs here — the leading edge of the gesture whose
+            // trailing edge `trackScroll` reports — and is deliberately absent.
+            //
+            // Its doc says `simultaneousGesture` keeps it from stealing an enclosing ScrollView's
+            // scrolling. Measured here, it does steal it: with the modifier on, three full swipes
+            // moved the list by nothing and emitted three `ui_drag`s; with it off, one identical
+            // swipe scrolled from S01E01 to S03E09. A tracking call that breaks scrolling is not
+            // something to ship to make a point.
         }
-        .listStyle(.plain)
+        // Without this the content has no named coordinate space to measure against and `trackScroll`
+        // silently reports nothing — no warning, no event.
+        .pantrixScrollContainer()
         .overlay { if vm.state.isLoading && vm.state.items.isEmpty { ProgressView() } }
         .navigationTitle("Episodes")
         .searchable(text: queryBinding, prompt: "Search episodes")

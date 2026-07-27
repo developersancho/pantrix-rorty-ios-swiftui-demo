@@ -31,6 +31,8 @@ enum CharactersContract {
         /// The list scrolled close enough to the end to fetch the next page.
         case reachedEnd
         case selected(Character)
+        /// Long press on a row — the shortcut past the detail screen, straight to the episodes.
+        case longPressed(Character)
     }
 
     enum Effect: MviEffect {

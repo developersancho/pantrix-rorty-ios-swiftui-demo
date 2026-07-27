@@ -62,7 +62,15 @@ final class LocationsViewModel: PagedListViewModel<
                 self?.setEffect { .showError(error.localizedDescription) }
             }
         case let .selected(location):
-            Pantrix.trackInteraction(.click, attributes: ["target": "location_row", "id": location.id])
+            // The third route to the same event, and the one an MVI app usually wants. This screen
+            // keeps its `List` of `Button`s, where `trackTaps` cannot go (it would be a second tap
+            // handler), so the interaction is emitted here instead — from the layer that decides.
+            //
+            // `PantrixTrack.tap` rather than a hand-rolled `trackInteraction(.click, ["target": …])`:
+            // it writes the name under **`element`**, the same key `trackTaps` and `trackedTap` use.
+            // Same key everywhere means one query counts every row tap in the app; an ad-hoc `target`
+            // would be a second vocabulary that no dashboard knows to add up.
+            PantrixTrack.tap("location_row", metadata: ["id": location.id])
             Pantrix.track("location_opened", attributes: ["id": location.id, "name": location.name])
             setEffect { .navigate(.locationDetail(location)) }
         }

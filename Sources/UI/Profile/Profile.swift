@@ -37,6 +37,10 @@ enum ProfileContract {
         case logout
         case setCdId
         case readCdId
+        /// Sign in as a typed id rather than the built-in demo one.
+        case submitUserId(String)
+        /// Set `favorite_show` to a typed value rather than the built-in one.
+        case submitFavoriteShow(String)
     }
 
     enum Effect: MviEffect {}
@@ -112,6 +116,30 @@ final class ProfileViewModel: MviViewModel<
 
         case .readCdId:
             setState { $0.note = "getCdId() → \(Pantrix.getCdId() ?? "nil")" }
+
+        case let .submitUserId(raw):
+            let userId = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !userId.isEmpty else {
+                setState { $0.note = "Type an id first — an empty one would not identify anybody." }
+                return
+            }
+            Pantrix.setUser(userId: userId, properties: ["source": "typed"])
+            UserDefaults.standard.set(userId, forKey: Self.userKey)
+            Pantrix.track("profile_login", attributes: ["userId": userId, "source": "typed"])
+            setState {
+                $0.userId = userId
+                $0.note = "Signed in as the id you typed."
+            }
+
+        case let .submitFavoriteShow(raw):
+            let value = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !value.isEmpty else {
+                setState { $0.note = "Type a value first — use Unset to remove the key instead." }
+                return
+            }
+            Pantrix.setUserProperty(key: "favorite_show", value: value)
+            Pantrix.track("profile_property_set", attributes: ["key": "favorite_show", "source": "typed"])
+            setState { $0.note = "Set favorite_show = \(value)" }
         }
     }
 }
@@ -124,6 +152,12 @@ struct ProfileView: View {
     // The theme is app-wide chrome, not this screen's state, so it stays out of the MVI contract and
     // the view talks to the manager directly.
     private var theme = ThemeManager.shared
+
+    // Draft text, not state: what is half-typed in a field is the field's business until submitted.
+    // Putting it in `State` would push a mutation through the reducer on every keystroke.
+    @State private var userIdDraft = ""
+    @State private var favoriteShowDraft = ""
+    @FocusState private var favoriteShowFocused: Bool
 
     var body: some View {
         List {
@@ -153,6 +187,32 @@ struct ProfileView: View {
                 row("Log out", "clearUser()", "person.fill.xmark", destructive: true) {
                     vm.onIntent(.logout)
                 }
+            }
+
+            Section {
+                // `onEditingChanged:` is a `TextField` parameter, so the tracking wraps the handler
+                // instead of the view — that is why this one is a plain function, not a modifier.
+                // It is also the ONLY focus signal that reaches iOS 13, which is the package floor.
+                TextField(
+                    "Sign in as…",
+                    text: $userIdDraft,
+                    onEditingChanged: trackedEditingChanged("profile_user_id_field")
+                )
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .onSubmit { vm.onIntent(.submitUserId(userIdDraft)) }
+
+                // The same signal by the other road: you already hold the focus flag, so hand it over.
+                // Deliberately NOT combined with `trackedEditingChanged` on one field — both emit
+                // `ui_focus` on the same edge, so a field carrying both would count every focus twice.
+                TextField("favorite_show value…", text: $favoriteShowDraft)
+                    .focused($favoriteShowFocused)
+                    .trackFocus("profile_favorite_show_field", isFocused: favoriteShowFocused)
+                    .onSubmit { vm.onIntent(.submitFavoriteShow(favoriteShowDraft)) }
+            } header: {
+                Text("Type it instead")
+            } footer: {
+                Text("Return to apply. The two fields report focus by different routes — `trackedEditingChanged` wraps the field's own callback (iOS 13+), `trackFocus` reads a `@FocusState` you already own (iOS 15+). Both emit `ui_focus`.")
             }
 
             Section {

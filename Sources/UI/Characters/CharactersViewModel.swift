@@ -47,9 +47,19 @@ final class CharactersViewModel: PagedListViewModel<
             }
 
         case let .selected(character):
-            Pantrix.trackInteraction(.click, attributes: ["target": "character_row", "id": character.id])
+            // The `ui_click` is already on its way — the row's `trackTaps` sent it before this intent
+            // arrived. Emitting it again here would double every tap in the funnel.
             Pantrix.track("character_opened", attributes: ["id": character.id, "name": character.name])
             setEffect { .navigate(.characterDetail(character)) }
+
+        case let .longPressed(character):
+            Pantrix.track("character_episodes_shortcut", attributes: [
+                "id": character.id,
+                "count": character.episodeIds.count
+            ])
+            setEffect {
+                .navigate(.episodesByIds(ids: character.episodeIds, title: character.name))
+            }
         }
     }
 

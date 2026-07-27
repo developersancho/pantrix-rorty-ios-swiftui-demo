@@ -28,19 +28,30 @@ struct CharactersView: View {
             }
 
             ForEach(vm.state.items) { character in
-                Button {
-                    vm.onIntent(.selected(character))
-                } label: {
-                    CharacterRow(character: character)
-                }
-                .buttonStyle(.plain)
-                .onAppear {
-                    // Prefetch trigger: five rows from the end, matching the UIKit demo so the two
-                    // apps issue a comparable number of page requests.
-                    if character.id == vm.state.items.suffix(5).first?.id {
-                        vm.onIntent(.reachedEnd)
+                CharacterRow(character: character)
+                    .contentShape(Rectangle())
+                    // Not a `Button` any more, and deliberately: `trackTaps` installs its own tap and
+                    // long-press gestures, so layering it on a Button would leave the row with two tap
+                    // handlers. (`trackedTap` is the Button-safe variant — the Lab uses that one.)
+                    // Long press is a real shortcut here, not a demo hook: it skips the detail screen
+                    // and goes straight to the character's episodes.
+                    .trackTaps(
+                        "character_row",
+                        metadata: ["id": character.id],
+                        onLongPress: { vm.onIntent(.longPressed(character)) }
+                    ) {
+                        vm.onIntent(.selected(character))
                     }
-                }
+                    // Pointer only — an iPad with a trackpad, or Catalyst. On a touch-only device
+                    // nothing ever calls it, which is why it costs nothing to leave in.
+                    .trackHover("character_row")
+                    .onAppear {
+                        // Prefetch trigger: five rows from the end, matching the UIKit demo so the
+                        // two apps issue a comparable number of page requests.
+                        if character.id == vm.state.items.suffix(5).first?.id {
+                            vm.onIntent(.reachedEnd)
+                        }
+                    }
             }
 
             if vm.state.isLoadingMore {

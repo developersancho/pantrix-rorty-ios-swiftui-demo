@@ -172,22 +172,22 @@ struct LabView: View {
     var body: some View {
         List {
             Section("Events") {
-                LabRow("Track a custom event", "Pantrix.track(\"lab_custom_event\", …)", "sparkles") {
+                LabRow("Track a custom event", "Pantrix.track(\"lab_custom_event\", …)", "sparkles", element: "lab_track_event") {
                     vm.onIntent(.trackEvent)
                 }
-                LabRow("Track an interaction", "trackInteraction(.longClick, …)", "hand.tap.fill") {
+                LabRow("Track an interaction", "trackInteraction(.longClick, …)", "hand.tap.fill", element: "lab_track_interaction") {
                     vm.onIntent(.trackInteraction)
                 }
             }
 
             Section {
-                LabRow("instrumentedSession fetch", "automatic — method, status, timings, headers", "network") {
+                LabRow("instrumentedSession fetch", "automatic — method, status, timings, headers", "network", element: "lab_http_auto") {
                     vm.onIntent(.httpAuto)
                 }
-                LabRow("…the same, plus a response body", "trackHttp(responseBody:) — the only way on async", "square.and.pencil") {
+                LabRow("…the same, plus a response body", "trackHttp(responseBody:) — the only way on async", "square.and.pencil", element: "lab_http_manual_body") {
                     vm.onIntent(.httpManualBody)
                 }
-                LabRow("A request that fails", "captured here; the Alamofire path drops failures", "wifi.exclamationmark") {
+                LabRow("A request that fails", "captured here; the Alamofire path drops failures", "wifi.exclamationmark", element: "lab_http_failing") {
                     vm.onIntent(.httpFailing)
                 }
             } header: {
@@ -197,22 +197,22 @@ struct LabView: View {
             }
 
             Section("Diagnostics") {
-                LabRow("Trigger a handled exception", "catch → trackException (not a crash)", "exclamationmark.triangle.fill") {
+                LabRow("Trigger a handled exception", "catch → trackException (not a crash)", "exclamationmark.triangle.fill", element: "lab_handled_exception") {
                     vm.onIntent(.handledException)
                 }
-                LabRow("Privacy & config", "how this demo configures the SDK", "lock.shield.fill") {
+                LabRow("Privacy & config", "how this demo configures the SDK", "lock.shield.fill", element: "lab_privacy_sheet") {
                     vm.onIntent(.showPrivacy)
                 }
             }
 
             Section("Debug tools") {
-                LabRow("Crash Lab", "trigger real crashes, captured on the next launch", "ladybug.fill", destructive: true) {
+                LabRow("Crash Lab", "trigger real crashes, captured on the next launch", "ladybug.fill", element: "lab_crash_lab", destructive: true) {
                     path.append(.crashLab)
                 }
-                LabRow("Send Feedback", "PantrixFeedback.show(from:)", "envelope.fill") {
+                LabRow("Send Feedback", "PantrixFeedback.show(from:)", "envelope.fill", element: "lab_send_feedback") {
                     PantrixFeedback.show(from: topViewController())
                 }
-                LabRow("Open Inspector", "PantrixInspector.present(from:) · or shake", "magnifyingglass") {
+                LabRow("Open Inspector", "PantrixInspector.present(from:) · or shake", "magnifyingglass", element: "lab_open_inspector") {
                     PantrixInspector.present(from: topViewController())
                 }
             }
@@ -264,19 +264,33 @@ private struct LabRow: View {
     let title: String
     let subtitle: String
     let systemImage: String
+    /// The analytics name, given explicitly rather than derived from `title`: a label is copy and gets
+    /// reworded, and a derived key would silently rename the metric when it does.
+    let element: String
     var destructive = false
     let action: () -> Void
 
-    init(_ title: String, _ subtitle: String, _ systemImage: String, destructive: Bool = false, action: @escaping () -> Void) {
+    init(
+        _ title: String,
+        _ subtitle: String,
+        _ systemImage: String,
+        element: String,
+        destructive: Bool = false,
+        action: @escaping () -> Void
+    ) {
         self.title = title
         self.subtitle = subtitle
         self.systemImage = systemImage
+        self.element = element
         self.destructive = destructive
         self.action = action
     }
 
     var body: some View {
-        Button(action: action) {
+        // `trackedTap`, not `.trackTap` — this row IS a Button, and the modifier would install a
+        // second tap handler on top of the one the Button already owns. `trackedTap` wraps the
+        // action instead: record, then run.
+        Button(action: trackedTap(element, perform: action)) {
             HStack(spacing: 12) {
                 Image(systemName: systemImage)
                     .frame(width: 24)
