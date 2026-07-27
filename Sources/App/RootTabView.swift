@@ -13,6 +13,11 @@ import SwiftUI
 /// requires a typed array, so one array per stack is the natural unit.
 struct RootTabView: View {
 
+    /// Tinting once at the root is the whole theme propagation. The UIKit demo had to set
+    /// `window.tintColor` and then rebuild already-built rows by hand, because buttons baked the
+    /// colour in at construction; here every descendant re-reads it and recolours on its own.
+    private var theme = ThemeManager.shared
+
     @State private var charactersPath: [Route] = []
     @State private var locationsPath: [Route] = []
     @State private var episodesPath: [Route] = []
@@ -37,7 +42,7 @@ struct RootTabView: View {
             .tabItem { Label("Episodes", systemImage: "tv.fill") }
 
             stack(path: $profilePath) {
-                PlaceholderScreen(name: "Profile", systemImage: "person.crop.circle")
+                ProfileView()
             }
             .tabItem { Label("Profile", systemImage: "person.crop.circle") }
 
@@ -46,6 +51,7 @@ struct RootTabView: View {
             }
             .tabItem { Label("Lab", systemImage: "wrench.and.screwdriver.fill") }
         }
+        .tint(theme.current.accent)
     }
 
     /// One navigation stack, its destination table, and its Pantrix reporting — in one place so the

@@ -148,9 +148,11 @@ struct Faz1ProbeView: View {
     private func row(_ title: String, _ subtitle: String, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).foregroundStyle(.primary)
+                // Concrete colours: a Button tints its label, and the hierarchical `.primary` /
+                // `.secondary` resolve against that tint rather than the label colour.
+                Text(title).foregroundStyle(Color.primary)
                 if !subtitle.isEmpty {
-                    Text(subtitle).font(.caption).foregroundStyle(.secondary)
+                    Text(subtitle).font(.caption).foregroundStyle(Color.secondary)
                 }
             }
         }
