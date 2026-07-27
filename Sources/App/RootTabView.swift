@@ -22,7 +22,7 @@ struct RootTabView: View {
     var body: some View {
         TabView {
             stack(path: $charactersPath) {
-                PlaceholderScreen(name: "Characters", systemImage: "person.3.fill")
+                CharactersView(path: $charactersPath)
             }
             .tabItem { Label("Characters", systemImage: "person.3.fill") }
 
@@ -62,24 +62,24 @@ struct RootTabView: View {
     ) -> some View {
         NavigationStack(path: path) {
             root()
-                .navigationDestination(for: Route.self) { destination($0) }
+                .navigationDestination(for: Route.self) { destination($0, path: path) }
         }
         .trackNavigation(path: path.wrappedValue)
     }
 
     @ViewBuilder
-    private func destination(_ route: Route) -> some View {
+    private func destination(_ route: Route, path: Binding<[Route]>) -> some View {
         switch route {
-        case let .characterDetail(_, name):
-            PlaceholderScreen(name: name, systemImage: "person.fill")
-        case let .locationDetail(_, name):
-            PlaceholderScreen(name: name, systemImage: "mappin.and.ellipse")
-        case let .episodeDetail(_, name):
-            PlaceholderScreen(name: name, systemImage: "tv")
+        case let .characterDetail(character):
+            CharacterDetailView(character: character, path: path)
+        case let .locationDetail(location):
+            PlaceholderScreen(name: location.name, systemImage: "mappin.and.ellipse")
+        case let .episodeDetail(episode):
+            PlaceholderScreen(name: episode.name, systemImage: "tv")
         case let .charactersByIds(_, title):
             PlaceholderScreen(name: title, systemImage: "person.3")
-        case let .episodesByIds(_, title):
-            PlaceholderScreen(name: title, systemImage: "list.and.film")
+        case let .episodesByIds(ids, title):
+            EpisodesByIdsView(ids: ids, title: title, path: path)
         case .crashLab:
             PlaceholderScreen(name: "Crash Lab", systemImage: "ladybug.fill")
         }

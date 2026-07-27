@@ -11,10 +11,13 @@ import PantrixSwiftUI
 /// The path must be a **typed array** (`[Route]`), not `NavigationPath`: `trackNavigation(path:)`
 /// can only read a collection whose elements it can see, and a type-erased `NavigationPath` exposes
 /// nothing but its `count`.
+/// Detail routes carry the whole entity rather than an id. The list already has it, so re-fetching
+/// would be a request for data in hand — the UIKit demo passes the object for the same reason. The
+/// by-ids routes carry ids because that IS the query.
 enum Route: Hashable {
-    case characterDetail(id: Int, name: String)
-    case locationDetail(id: Int, name: String)
-    case episodeDetail(id: Int, name: String)
+    case characterDetail(Character)
+    case locationDetail(Location)
+    case episodeDetail(Episode)
     case charactersByIds(ids: [Int], title: String)
     case episodesByIds(ids: [Int], title: String)
     case crashLab
