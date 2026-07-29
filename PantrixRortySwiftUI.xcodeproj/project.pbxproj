@@ -771,7 +771,7 @@
 			repositoryURL = "https://github.com/developersancho/pantrix-sdk-ios-spm";
 			requirement = {
 				kind = exactVersion;
-				version = "1.0.0-beta.14";
+				version = "1.0.0-beta.15";
 			};
 		};
 		B8ADE3C3AB3F15B69EF13EAC /* XCRemoteSwiftPackageReference "Kingfisher" */ = {

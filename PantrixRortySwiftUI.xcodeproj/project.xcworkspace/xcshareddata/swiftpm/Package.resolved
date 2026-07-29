@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/developersancho/pantrix-sdk-ios-spm",
       "state" : {
-        "revision" : "63809091cf379563e07f7175ba2a193191a1cd71",
-        "version" : "1.0.0-beta.14"
+        "revision" : "68d410c8badfe092d912f24cc564924633bf0262",
+        "version" : "1.0.0-beta.15"
       }
     },
     {
