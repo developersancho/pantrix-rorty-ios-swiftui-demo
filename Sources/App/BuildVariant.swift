@@ -51,7 +51,11 @@ enum BuildVariant {
         if let override = ProcessInfo.processInfo.environment["PANTRIX_BACKEND_URL"], !override.isEmpty {
             return override
         }
-        return "http://localhost:8099"
+        if isRelease {
+            return "https://api.pantrixapp.com"
+        } else {
+            return "http://localhost:8099"
+        }
     }
 
     /// SDK ingest token for this variant's Pantrix project. Must match the variant's bundle id.
@@ -59,7 +63,7 @@ enum BuildVariant {
         switch self {
         case .debug: return "px_tpvqhf3i6niecswvds8i5fpaxy9ykchqpw53"
         case .qaTest: return "px_6if8hdp5rua698akfoqzxjunnsoiyufaz64l"
-        case .release: return "px_5jacpflx9ckefan44mv1q0ievmvtym1cv3r1"
+        case .release: return "px_l2r2eu3kux8nwuq0i4gj0palf798d1t23f9x"
         }
     }
 
