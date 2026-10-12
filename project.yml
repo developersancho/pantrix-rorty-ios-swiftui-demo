@@ -17,7 +17,7 @@ configs:
 packages:
   Pantrix:
     url: https://github.com/developersancho/pantrix-sdk-ios-spm
-    exactVersion: "1.0.0-beta.14"
+    exactVersion: "1.0.0-beta.15"
   Kingfisher:
     url: https://github.com/onevcat/Kingfisher
     from: "7.0.0"
@@ -126,6 +126,22 @@ targets:
           esac
           "${BUILD_DIR%/Build/*}/SourcePackages/checkouts/pantrix-sdk-ios-spm/Scripts/pantrix-upload-dsym.sh" \
             > /tmp/pantrix-dsym-swiftui-buildphase.log 2>&1 || true
+  # Unit tests of the layers that have no screen: mappers, DTO decoding, use cases, entities. The app
+  # hosts them, because the code under test is compiled into the app and nowhere else.
+  PantrixRortySwiftUITests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: PantrixRortySwiftUI
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.pantrix.demo.rorty.swiftui.tests
+        DEVELOPMENT_TEAM: ${PANTRIX_DEV_TEAM}
+        CODE_SIGN_STYLE: Automatic
+        SWIFT_VERSION: "5.0"
 # One scheme per variant — the iOS analogue of Android's Build Variant dropdown. Shared so
 # `xcodebuild -scheme PantrixRortySwiftUI-Debug …` works after every regenerate.
 schemes:
@@ -135,6 +151,15 @@ schemes:
         PantrixRortySwiftUI: all
     run:
       config: Debug
+    # Tests run on the debug variant only, and say which lines of the app they ran: the coverage is
+    # in the result bundle, where Pantrix MQ reads it.
+    test:
+      config: Debug
+      gatherCoverageData: true
+      coverageTargets:
+        - PantrixRortySwiftUI
+      targets:
+        - PantrixRortySwiftUITests
     archive:
       config: Debug
   PantrixRortySwiftUI-QaTest:

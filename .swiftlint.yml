@@ -1,0 +1,9 @@
+# SwiftLint with its default rules, over the app and its tests. Pantrix MQ reads the report:
+#
+#   swiftlint lint --reporter sarif > build/reports/swiftlint.sarif
+#
+# The command ends with a status other than 0 when a rule of the error level is broken; the report
+# is written all the same.
+included:
+  - Sources
+  - Tests
