@@ -68,3 +68,9 @@ extension PageDto {
         Page(items: results.map(transform), nextURL: info.next, total: info.count)
     }
 }
+
+// TODO: Goes with the pull request.
+/// A trial of Pantrix MQ on a pull request: the pull request is closed, not merged.
+func episodeCount(_ value: Any) -> Int {
+    value as! Int
+}
