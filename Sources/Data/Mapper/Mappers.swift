@@ -72,5 +72,5 @@ extension PageDto {
 // TODO: Goes with the pull request.
 /// A trial of Pantrix MQ on a pull request: the pull request is closed, not merged.
 func episodeCount(_ value: Any) -> Int {
-    value as! Int
+    (value as? Int) ?? 0
 }
