@@ -1,0 +1,118 @@
+# The checks of the app on every push to master and every pull request: the unit tests with coverage, the static
+# analyzer of Xcode and SwiftLint, and Pantrix MQ's verdict on what they found.
+#
+# pmq comes from GitHub Packages of developersancho/pantrix-mq. MQ_PACKAGES_TOKEN is a token that only reads packages.
+# A pull request from a fork has no secrets: its checks run, and MQ does not.
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A newer push to a pull request makes the run for the older one pointless. On master every run is kept.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  checks:
+    name: Tests, analyze, SwiftLint and MQ
+    runs-on: macos-26
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      # For MQ's verdict: a check on the commit, and on a pull request a comment that every run updates.
+      checks: write
+      pull-requests: write
+    env:
+      MQ_VERSION: 0.2.0
+      GPR_USER: ${{ github.repository_owner }}
+      GPR_TOKEN: ${{ secrets.MQ_PACKAGES_TOKEN }}
+      PROJECT: PantrixRortySwiftUI.xcodeproj
+      SCHEME: PantrixRortySwiftUI-Debug
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # The whole history: MQ measures a pull request from where it left master, and looks back through master
+          # for the nearest commit its store holds the analysis of.
+          fetch-depth: 0
+      # pmq runs on Java.
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: zulu
+          java-version: 21
+      - name: An iPhone simulator
+        # The names of the simulators an image has change with it; the first iPhone of the newest iOS is as good as any.
+        run: |
+          udid="$(xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          devices = json.load(sys.stdin)["devices"]
+          print(next(d["udid"] for runtime in sorted(devices, reverse=True) if "iOS" in runtime
+                     for d in devices[runtime] if d["name"].startswith("iPhone")))')"
+          echo "DESTINATION=platform=iOS Simulator,id=$udid" >> "$GITHUB_ENV"
+      # A clean build each, and apart: MQ reads the warnings of a build that compiled everything, and the analyzer's
+      # of an analyze of its own.
+      - name: The unit tests with coverage
+        run: >
+          xcodebuild clean test -project "$PROJECT" -scheme "$SCHEME" -destination "$DESTINATION"
+          -derivedDataPath build/DerivedData -resultBundlePath build/Test.xcresult
+          -enableCodeCoverage YES -collect-test-diagnostics never CODE_SIGNING_ALLOWED=NO
+      - name: The static analyzer of Xcode
+        if: ${{ !cancelled() }}
+        run: >
+          xcodebuild clean analyze -project "$PROJECT" -scheme "$SCHEME" -destination "$DESTINATION"
+          -derivedDataPath build/DerivedData -resultBundlePath build/Analyze.xcresult CODE_SIGNING_ALLOWED=NO
+      - name: SwiftLint
+        if: ${{ !cancelled() }}
+        # SwiftLint ends with a status other than 0 when a rule of the error level is broken; its report is written
+        # all the same, and MQ judges it.
+        run: |
+          command -v swiftlint > /dev/null || brew install swiftlint
+          swiftlint lint --reporter sarif --quiet > build/swiftlint.sarif || true
+      - name: Restore MQ's store of baselines
+        if: ${{ !cancelled() && env.GPR_TOKEN != '' }}
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/mq-baselines
+          key: mq-baselines-v0-${{ github.sha }}
+          restore-keys: mq-baselines-v0-
+      - name: pmq, from GitHub Packages
+        if: ${{ !cancelled() && env.GPR_TOKEN != '' }}
+        run: |
+          base="https://maven.pkg.github.com/developersancho/pantrix-mq/io/github/developersancho/pantrix/mq"
+          curl -fsSL -u "$GPR_USER:$GPR_TOKEN" -o "$RUNNER_TEMP/pmq.zip" \
+            "$base/pantrix-mq-scanner-cli/$MQ_VERSION/pantrix-mq-scanner-cli-$MQ_VERSION.zip"
+          unzip -q "$RUNNER_TEMP/pmq.zip" -d "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/pmq-$MQ_VERSION/bin" >> "$GITHUB_PATH"
+      - name: MQ's analysis of the iOS part
+        if: ${{ !cancelled() && env.GPR_TOKEN != '' }}
+        run: >
+          pmq analyze --project rorty-ios --source Sources --source Tests
+          --swiftlint build/swiftlint.sarif --xcresult build/Test.xcresult --analyzer-xcresult build/Analyze.xcresult
+          --app build/DerivedData/Build/Products/Debug-iphonesimulator/PantrixRortySwiftUI.app
+          --baselines "$RUNNER_TEMP/mq-baselines"
+      - name: MQ's verdict
+        id: verdict
+        if: ${{ !cancelled() && env.GPR_TOKEN != '' && hashFiles('build/mq/ios.mqr') != '' }}
+        # The verdict is the status of the step. Master keeps its analysis, which its pull requests are compared with.
+        run: >
+          pmq finalize
+          --bundle build/mq/ios.mqr
+          --baselines "$RUNNER_TEMP/mq-baselines"
+          --summary "$GITHUB_STEP_SUMMARY"
+          $MQ_KEEP --github
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          MQ_KEEP: ${{ github.event_name == 'push' && '--keep' || '' }}
+      - name: Save MQ's store of baselines
+        # Whatever the gate said: the analysis is kept all the same.
+        if: ${{ !cancelled() && github.event_name == 'push' && steps.verdict.outcome != 'skipped' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/mq-baselines
+          key: mq-baselines-v0-${{ github.sha }}
