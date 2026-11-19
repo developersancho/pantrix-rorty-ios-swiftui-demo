@@ -69,14 +69,16 @@ jobs:
         run: >
           xcodebuild clean analyze -project "$PROJECT" -scheme "$SCHEME" -destination "$DESTINATION"
           -derivedDataPath build/DerivedData -resultBundlePath build/Analyze.xcresult CODE_SIGNING_ALLOWED=NO
-      # TRIAL, not to be merged: the issues of both result bundles as xcresulttool gives them, and nothing else.
-      - name: The issues of both result bundles, for a trial of MQ's reading of them
+      # TRIAL, not to be merged: the build results of both result bundles, with the probes of MQ's fixtures in the
+      # targets, as the command pmq analyze runs prints them.
+      - name: The build results of both result bundles, for a trial of MQ's reading of them
         if: ${{ !cancelled() }}
         run: |
           xcrun xcresulttool version
           for bundle in build/Test.xcresult build/Analyze.xcresult; do
             echo "== $bundle"
-            xcrun xcresulttool get build-results --path "$bundle" | python3 -c 'import json, sys; d = json.load(sys.stdin); print(json.dumps({k: d[k] for k in ("warnings", "analyzerWarnings", "errors")}, indent=1))'
+            xcrun xcresulttool get build-results --schema-version 0.1.0 --path "$bundle" --compact
+            echo
           done
       - name: SwiftLint
         if: ${{ !cancelled() }}
