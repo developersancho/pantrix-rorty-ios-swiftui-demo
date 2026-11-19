@@ -137,3 +137,10 @@ struct DetailRow: View {
         .padding(.vertical, 2)
     }
 }
+
+/// A trial of MQ on GitHub: a forced cast, which the catalogue stops a change for, and a space after the name of an
+/// attribute, which SwiftLint calls an error and the catalogue does not stop for.
+@available (iOS 17, *)
+func forcedNumber(_ value: Any) -> Int {
+    value as! Int
+}
